@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYLICATE // ARCHIVE</title>
+    <style>
+        /* =========================================
+           I. CONFIGURATION
+           ========================================= */
+        :root {
+            --bg: #e6e6e6;
+            --ink: #0a0a0a;
+            --mid: #666666;
+            --line: 1px solid rgba(10, 10, 10, 0.15);
+            --strong-line: 2px solid #0a0a0a;
+            --accent: #ff3300;
+            --font-ui: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        /* TRUE BLACK DARK MODE */
+        body.inverted {
+            --bg: #000000;
+            --ink: #ffffff;
+            --mid: #888888;
+            --line: 1px solid rgba(255, 255, 255, 0.2);
+            --strong-line: 2px solid #ffffff;
+            --accent: #ff5555;
+        }
+
+        /* =========================================
+           II. GLOBAL RESET
+           ========================================= */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: var(--font-ui);
+            font-size: 11px;
+            overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        body.system-active { overflow-y: auto; overflow-x: hidden; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); border-left: var(--line); }
+        ::-webkit-scrollbar-thumb { background: var(--mid); border: 1px solid var(--bg); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+
+        /* NOISE TEXTURE */
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999;
+            transition: opacity 0.3s;
+        }
+        body.inverted::after { opacity: 0; }
+
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+        .mono { font-family: var(--font-mono); letter-spacing: -0.5px; }
+        .caps { text-transform: uppercase; letter-spacing: 1px; font-weight: bold; font-size: 10px; }
+        .hidden { display: none !important; }
+
+        /* =========================================
+           III. VENN LOADER
+           ========================================= */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1.5s ease;
+        }
+        #loader.done { opacity: 0; pointer-events: none; }
+        
+        .venn-wrapper { position: relative; width: 120px; height: 60px; display: flex; align-items: center; justify-content: center; }
+        .venn-mover { position: absolute; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; will-change: transform; }
+        .venn-ring { width: 100%; height: 100%; border-radius: 50%; background: transparent; mix-blend-mode: exclusion; box-sizing: border-box; }
+        .solid-ring { border: 1px solid var(--ink); }
+        .dashed-ring { border: 1px dashed var(--ink); animation: spin-ring 6s linear infinite; }
+        .venn-wrapper.snapped .dashed-ring { animation: none; border-style: solid; }
+        
+        /* Loader Counter */
+        #loader-counter {
+            margin-top: 30px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--ink);
+            letter-spacing: 2px;
+            opacity: 0.7;
+            transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth dissolve */
+        }
+        #loader-counter.dissolve {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+        
+        .venn-ripple {
+            position: absolute; width: 250px; height: 250px; border: 1px solid var(--ink); border-radius: 50%;
+            opacity: 0; pointer-events: none; transform: scale(0.24);
+        }
+        .venn-wrapper.snapped .venn-ripple { animation: calm-sonar 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .venn-wrapper.snapped .venn-ring { transform: scale(0); opacity: 0; transition: transform 0.4s ease-in, opacity 0.4s ease-in; }
+
+        @keyframes spin-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes calm-sonar { 0% { transform: scale(0.24); opacity: 1; border-width: 4px; } 100% { transform: scale(1); opacity: 0; border-width: 0px; } }
+
+        /* =========================================
+           IV. THE LANDING ZONE
+           ========================================= */
+        #landing-zone {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--bg); z-index: 5000;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        #landing-zone.dismissed { pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }
+
+        .layer { position: absolute; display: flex; align-items: center; justify-content: center; will-change: transform, opacity; transition: opacity 2s ease, transform 2s cubic-bezier(0.2, 0.8, 0.2, 1); opacity: 0; }
+        body.booted .layer { opacity: 1; }
+        .layer-wires { transform: scale(1.1); } body.booted .layer-wires { transform: scale(1); }
+        .layer-fluids { transform: scale(0.8); } body.booted .layer-fluids { transform: scale(1); }
+        .layer-text { transform: translateY(20px); } body.booted .layer-text { transform: translateY(0); }
+
+        .wire { position: absolute; background: var(--ink); width: 150vw; height: 1px; opacity: 0.6; }
+        .wire-1 { top: 30%; left: -20%; transform: rotate(15deg); } .wire-2 { top: 40%; left: -20%; transform: rotate(12deg); }
+        .wire-3 { top: 60%; left: -20%; transform: rotate(-5deg); height: 2px; } .wire-4 { top: 20%; left: 40%; width: 1px; height: 100vh; transform: rotate(25deg); opacity: 0.2; }
+
+        .fluid-shape { position: absolute; background: var(--ink); mix-blend-mode: exclusion; opacity: 0.8; border-radius: 50%; animation: morph 10s ease-in-out infinite; filter: blur(40px); }
+        .fluid-1 { width: 500px; height: 500px; top: 20%; left: 30%; background: #888; animation-duration: 15s; }
+        .fluid-2 { width: 300px; height: 300px; top: 50%; left: 50%; background: var(--ink); animation-duration: 8s; animation-direction: reverse; }
+        .fluid-3 { width: 400px; height: 100px; top: 40%; left: 20%; background: var(--mid); filter: blur(10px); animation: stretch 6s ease-in-out infinite; }
+
+        .hero-title-group { text-align: left; z-index: 10; pointer-events: none; mix-blend-mode: difference; color: #fff; }
+        .hero-main-text { font-size: 10vw; font-weight: bold; letter-spacing: -8px; line-height: 0.75; margin: 0; will-change: letter-spacing, opacity; }
+        .hero-sub { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; margin-top: 20px; margin-left: 10px; display: inline-block; border-left: 2px solid #fff; padding-left: 15px; }
+
+        .scroll-indicator { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 20; color: var(--ink); mix-blend-mode: exclusion; opacity: 0; transition: opacity 1s 1s; }
+        body.booted .scroll-indicator { opacity: 1; }
+        .scroll-mouse { width: 20px; height: 32px; border: 2px solid #fff; border-radius: 12px; margin: 0 auto 10px auto; position: relative; }
+        .scroll-wheel { width: 2px; height: 6px; background: #fff; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); animation: scroll-bounce 1.5s infinite; }
+        .scroll-text { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: #fff; }
+
+        @keyframes morph { 0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0,0) rotate(0deg); } 50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(50px, -20px) rotate(180deg); } }
+        @keyframes scroll-bounce { 0% { transform: translate(-50%, 0); opacity: 1; } 100% { transform: translate(-50%, 10px); opacity: 0; } }
+
+        /* =========================================
+           V. MAIN INTERFACE
+           ========================================= */
+        #interface {
+            display: grid; grid-template-columns: 240px 1fr;
+            height: 100vh; overflow: hidden;
+            clip-path: inset(100% 0 0 0); /* Closed shutter */
+            transition: clip-path 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #interface.active { clip-path: inset(0 0 0 0); }
+
+        #sidebar { background: var(--bg); border-right: var(--strong-line); padding: 20px; height: 100vh; overflow-y: auto; z-index: 50; display: flex; flex-direction: column; justify-content: space-between; }
+        #content-area { position: relative; height: 100vh; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        #top-bar { 
+            position: fixed; top: 0; left: 240px; right: 0; height: 50px; 
+            display: flex; justify-content: flex-end; 
+            align-items: center; 
+            padding: 0 30px; z-index: 40; pointer-events: none; 
+        }
+        #top-bar > * { pointer-events: auto; }
+
+        .nav-item { display: block; padding: 8px 0; border-bottom: var(--line); color: var(--mid); font-family: var(--font-mono); transition: 0.2s; }
+        .nav-item:hover { color: var(--ink); padding-left: 5px; border-bottom: 1px solid var(--ink); }
+        .nav-item.active { color: var(--ink); font-weight: bold; padding-left: 5px; border-bottom: var(--strong-line); }
+
+        .theme-btn { background: var(--ink); color: var(--bg); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+        .theme-btn:hover { transform: scale(1.1); }
+        .theme-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+        /* --- GEOMETRIC LOGO / DIAL --- */
+        #logo-dial {
+            width: 50px; height: 50px; position: relative; margin-bottom: 40px; cursor: default;
+        }
+        .mode-ring-outer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1px dashed var(--mid); border-radius: 50%; animation: spin-slow 20s linear infinite;
+        }
+        .mode-ring-inner {
+            position: absolute; top: 15px; left: 15px; width: 20px; height: 20px; background: var(--ink); border-radius: 50%;
+        }
+        .mode-satellite {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .mode-satellite::after {
+            content: ""; position: absolute; top: -3px; left: 50%; width: 6px; height: 6px; background: var(--ink); transform: translateX(-50%); border-radius: 50%;
+        }
+        #logo-dial[data-state="archive"] .mode-satellite { transform: rotate(0deg); }
+        #logo-dial[data-state="profile"] .mode-satellite { transform: rotate(180deg); }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+
+        /* =========================================
+           VI. ARCHIVE FEED
+           ========================================= */
+        #feed-content { 
+            padding: 80px 40px; width: 100%;
+            display: flex; justify-content: center;
+        }
+
+        .archive-layout {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            gap: 40px;
+            max-width: 900px; width: 100%;
+        }
+
+        .archive-spine {
+            position: relative;
+            border-right: var(--line);
+        }
+        
+        .spine-label {
+            position: sticky; top: 100px;
+            writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+            font-family: var(--font-mono); font-size: 10px; font-weight: bold; 
+            letter-spacing: 2px; color: var(--ink);
+            white-space: nowrap;
+            padding: 10px 0;
+            border-left: 2px solid var(--ink);
+            margin-right: -1px;
+        }
+
+        #art-injection-point {
+            display: flex; flex-direction: column; gap: 100px;
+            padding-top: 20px;
+        }
+
+        .entry {
+            display: block; width: 100%;
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .viz-wrapper {
+            background: var(--bg); border: var(--line);
+            padding: 20px;
+            transition: border-color 0.3s;
+        }
+        .viz-wrapper:hover { border-color: var(--ink); }
+
+        .file-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 15px; margin-bottom: 15px; border-bottom: var(--line);
+            font-family: var(--font-mono); font-size: 10px; color: var(--mid);
+        }
+
+        .visual-hash {
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+            width: 10px; height: 10px; gap: 2px;
+        }
+        .hash-bit { background: var(--ink); width: 100%; height: 100%; }
+
+        /* OPTIMIZED IMAGE BOX */
+        .img-box {
+            position: relative; overflow: hidden; cursor: zoom-in;
+            border: 1px solid var(--line); aspect-ratio: 4/5;
+            margin-bottom: 20px;
+            background: rgba(128,128,128,0.1); /* Skeleton bg */
+            display: flex; align-items: center; justify-content: center;
+        }
+        /* Loader placeholder text */
+        .img-box::before {
+            content: "LOADING_DATA...";
+            position: absolute;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--mid);
+            z-index: 0;
+            animation: pulse-text 1.5s infinite;
+        }
+        @keyframes pulse-text { 0% { opacity: 0.3; } 50% { opacity: 0.8; } 100% { opacity: 0.3; } }
+        
+        /* Image hidden by default for fade-in */
+        .img-box img { 
+            display: block; width: 100%; height: 100%; object-fit: cover; 
+            position: relative; z-index: 2;
+            opacity: 0; 
+            transition: opacity 0.6s ease-in;
+        }
+        /* Class added via JS when loaded */
+        .img-box img.loaded { opacity: 1; }
+        
+        .scan-overlay { display: none; }
+
+        .meta-data-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            margin-bottom: 20px;
+        }
+        .meta-group { display: flex; flex-direction: column; }
+        .meta-label { font-family: var(--font-mono); font-size: 9px; color: var(--mid); margin-bottom: 4px; }
+        .meta-value { font-family: var(--font-ui); font-size: 11px; font-weight: bold; color: var(--ink); }
+
+        .btn-bar {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            border-top: var(--line); padding-top: 20px;
+        }
+        .action-btn {
+            display: flex; align-items: center; justify-content: center;
+            padding: 12px; border: 1px solid var(--ink);
+            background: transparent; color: var(--ink);
+            font-family: var(--font-mono); font-size: 10px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; transition: 0.2s;
+        }
+        .action-btn:hover { background: var(--ink); color: var(--bg); }
+        .action-btn.secondary { border: 1px dashed var(--mid); color: var(--mid); }
+        .action-btn.secondary:hover { border-color: var(--ink); color: var(--ink); background: transparent; }
+
+        /* Lightbox */
+        #lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(10px); cursor: default; }
+        #lightbox.active { opacity: 1; pointer-events: auto; }
+        #lightbox-container { width: 90%; height: 90%; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        #lightbox-img { max-width: 100%; max-height: 100%; transition: transform 0.1s ease-out; cursor: zoom-in; object-fit: contain; user-select: none; }
+        #lightbox-controls { position: absolute; top: 30px; right: 30px; display: flex; gap: 15px; z-index: 6001; }
+        .lb-btn { background: transparent; border: 1px solid #fff; color: #fff; padding: 8px 16px; font-family: var(--font-mono); font-size: 10px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .lb-btn:hover { background: #fff; color: #000; }
+        body.inverted #lightbox { background: rgba(255,255,255,0.95); }
+        body.inverted .lb-btn { border-color: #000; color: #000; }
+        body.inverted .lb-btn:hover { background: #000; color: #fff; }
+
+        .profile-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .social-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; }
+        
+        /* PROFILE ANIMATION CLASS */
+        .profile-section-anim {
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0; /* Start hidden */
+        }
+
+        /* =========================================
+           VII. MOBILE RESPONSIVENESS
+           ========================================= */
+        @media screen and (max-width: 768px) {
+            #interface { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+            
+            /* Sidebar as Fixed Top Header */
+            #sidebar { 
+                position: fixed;
+                top: 0; left: 0;
+                width: 100%;
+                height: 70px;
+                background: var(--bg);
+                border-right: none; 
+                border-bottom: var(--strong-line); 
+                padding: 15px;
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 15px;
+                overflow: visible;
+                z-index: 800; 
+            }
+
+            /* Adjust Content to not hide behind fixed sidebar */
+            #content-area {
+                margin-top: 70px; 
+                height: calc(100vh - 70px);
+            }
+
+            /* Adjust Title Group */
+            #sidebar > div:first-child {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                width: 100%;
+            }
+
+            /* Logo Fix for Mobile */
+            #logo-dial {
+                margin-bottom: 0;
+                transform: scale(0.8);
+                flex-shrink: 0; 
+            }
+
+            /* Hide Text Logo & Directory Label */
+            #sidebar h1, 
+            #sidebar .mono.caps { 
+                display: none; 
+            }
+
+            /* Nav Link Styling */
+            #sidebar div[style*="margin-bottom: 20px"] {
+                margin-bottom: 0 !important;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            .nav-item {
+                display: inline-block;
+                border: 1px solid var(--line);
+                padding: 8px 12px;
+                margin-bottom: 0;
+                border-bottom: 1px solid var(--line);
+            }
+            .nav-item.active {
+                background: var(--ink);
+                color: var(--bg);
+                border-color: var(--ink);
+            }
+
+            .capacity-section { display: none; }
+
+            /* Top Bar (Theme) - MOVED TO BOTTOM RIGHT */
+            /* This now acts like a Floating Action Button (FAB) */
+            #top-bar { 
+                position: fixed;
+                top: auto;
+                bottom: 30px; 
+                right: 20px;
+                left: auto;
+                width: auto;
+                height: auto;
+                padding: 0;
+                z-index: 900;
+                pointer-events: none; /* Let clicks pass through container area if needed */
+            }
+            #top-bar .theme-btn {
+                pointer-events: auto; /* Button handles clicks */
+                width: 44px;
+                height: 44px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Add shadow for separation */
+            }
+            body.inverted #top-bar .theme-btn {
+                box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            }
+
+            /* Archive Feed */
+            #feed-content { padding: 40px 15px; }
+            .archive-layout { grid-template-columns: 20px 1fr; gap: 15px; }
+            
+            .spine-label {
+                top: 20px;
+                font-size: 8px;
+                letter-spacing: 1px;
+            }
+
+            /* General Layout */
+            .meta-data-grid { grid-template-columns: 1fr; gap: 10px; }
+            .btn-bar { grid-template-columns: 1fr; }
+            .profile-container { grid-template-columns: 1fr; }
+            .hero-main-text { font-size: 15vw; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="venn-wrapper" id="venn-wrap">
+        <div class="venn-ripple"></div>
+        <div class="venn-mover" id="vm-left">
+            <div class="venn-ring solid-ring"></div>
+        </div>
+        <div class="venn-mover" id="vm-right">
+            <div class="venn-ring dashed-ring"></div>
+        </div>
+    </div>
+    <!-- NEW COUNTER ELEMENT -->
+    <div id="loader-counter">000</div>
+</div>
+
+<div id="lightbox">
+    <div id="lightbox-controls">
+        <button class="lb-btn" id="lb-hint">CLICK TO ZOOM</button>
+        <button class="lb-btn" onclick="closeLightbox()">[ CLOSE ]</button>
+    </div>
+    <div id="lightbox-container">
+        <img id="lightbox-img" src="" draggable="false">
+    </div>
+</div>
+
+<div id="landing-zone">
+    <div class="layer layer-wires"><div class="wire wire-1"></div><div class="wire wire-2"></div><div class="wire wire-3"></div><div class="wire wire-4"></div></div>
+    <div class="layer layer-fluids"><div class="fluid-shape fluid-1"></div></div>
+    <div class="layer layer-fluids"><div class="fluid-shape fluid-2"></div></div>
+    <div class="layer layer-fluids"><div class="fluid-shape fluid-3"></div></div>
+    <div class="layer layer-text hero-title-group"><h1 class="hero-main-text">SYLICATE<br>ARCHIVE</h1><div class="hero-sub">DATA_DECAY // 2025</div></div>
+    <div class="scroll-indicator"><div class="scroll-mouse"><div class="scroll-wheel"></div></div><div class="scroll-text">SCROLL TO DECRYPT</div></div>
+</div>
+
+<div id="interface">
+    <nav id="sidebar">
+        <div>
+            <!-- GEOMETRIC LOGO -->
+            <div id="logo-dial" data-state="archive">
+                <div class="mode-ring-outer"></div>
+                <div class="mode-ring-inner"></div>
+                <div class="mode-satellite"></div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <div class="mono caps" style="color: var(--mid); margin-bottom: 10px; font-size: 9px;">DIRECTORY</div>
+                <a class="nav-item active" onclick="navigate('archive', this)">[ 01 ] ARCHIVE_LOG</a>
+                <a class="nav-item" onclick="navigate('profile', this)">[ 02 ] PROFILE_DATA</a>
+            </div>
+        </div>
+        <div class="capacity-section">
+            <div style="margin-bottom: 15px;">
+                <div class="mono caps" style="font-size: 9px; margin-bottom: 4px; display: flex; justify-content: space-between;"><span>PROGRESS</span><span id="capacity-text">0%</span></div>
+                <div style="width: 100%; height: 8px; background: rgba(128,128,128,0.2); border: 1px solid var(--mid);"><div id="capacity-bar" style="width: 0%; height: 100%; background: var(--ink); transition: width 1s ease;"></div></div>
+            </div>
+            <div class="mono" style="font-size: 9px; color: var(--mid);">RAW HTML<br>NO TRACKING.</div>
+        </div>
+    </nav>
+    <div id="content-area">
+        <div id="top-bar">
+            <!-- Clock Removed -->
+            <button class="theme-btn" onclick="toggleTheme()" id="theme-icon-btn"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></button>
+        </div>
+        
+        <div id="feed-content">
+            <div class="archive-layout">
+                <div class="archive-spine">
+                    <div class="spine-label">ARCHIVE_LOG</div>
+                </div>
+                <div id="art-injection-point"></div>
+            </div>
+        </div>
+
+        <div id="profile-content" class="hidden" style="padding: 100px 80px;">
+            <h2 class="caps" style="font-size: 24px; margin-bottom: 20px;">:: USER_PROFILE</h2>
+            <div class="profile-container">
+                <div class="profile-section-anim">
+                    <div style="margin-bottom: 20px; padding: 20px; border: var(--line); background: rgba(0,0,0,0.02);">
+                        <h3 class="mono caps" style="margin-top:0;">ABOUT</h3>
+                        <p style="line-height: 1.5; margin-bottom: 15px;">Multidisciplinary artist based in Istanbul.</p>
+                    </div>
+                    <h3 class="mono caps" style="color:var(--mid);">EXTERNAL_LINKS</h3>
+                    <div class="social-grid">
+                        <a href="https://www.instagram.com/sylicate_/" target="_blank" class="action-btn">[ INSTAGRAM ]</a>
+                        <a href="https://x.com/sylicate_" target="_blank" class="action-btn">[ TWITTER / X ]</a>
+                        <a href="https://soundcloud.com/sylicate" target="_blank" class="action-btn">[ SOUNDCLOUD ]</a>
+                        <a href="https://www.patreon.com/cw/sylicate" target="_blank" class="action-btn">[ PATREON ]</a>
+                    </div>
+                </div>
+                <div class="profile-section-anim">
+                    <div style="border: var(--strong-line); padding: 20px; background: var(--bg);">
+                        <h3 class="mono caps" style="margin-top:0;">:: DIRECT_MESSAGE</h3>
+                        <form onsubmit="event.preventDefault(); alert('MESSAGE TRANSMITTED.');">
+                            <label class="mono" style="color:var(--mid)">SENDER_ID:</label><br><input type="text" style="width: 100%; border: var(--line); border-bottom: var(--strong-line); background: transparent; padding: 10px; font-family: var(--font-mono); margin-bottom: 20px; color: var(--ink);">
+                            <label class="mono" style="color:var(--mid)">DATA:</label><br><textarea rows="5" style="width: 100%; border: var(--line); border-bottom: var(--strong-line); background: transparent; padding: 10px; font-family: var(--font-mono); margin-bottom: 20px; color: var(--ink);"></textarea>
+                            <button class="action-btn" style="width: auto; padding: 10px 30px;">[ TRANSMIT ]</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =================================================================
+    //  STEP 0: REALISTIC VENN LOADING PHYSICS + MOBILE OPTIMIZATION
+    // =================================================================
+    let bootProgress = 0;
+    const loader = document.getElementById('loader');
+    const vennWrapper = document.getElementById('venn-wrap');
+    const vmLeft = document.getElementById('vm-left');
+    const vmRight = document.getElementById('vm-right');
+    const counterDisplay = document.getElementById('loader-counter');
+
+    // Detect Mobile for speed boost
+    const isMobile = window.innerWidth < 768;
+
+    window.onload = function() {
+        const loop = () => {
+            // Mobile users get fewer pauses
+            const skipChance = isMobile ? 0.3 : 0.85; 
+            
+            if (Math.random() > skipChance) { requestAnimationFrame(loop); return; }
+            
+            let increment = 0;
+            if (bootProgress < 20) increment = Math.random() * 0.8 + 0.2; 
+            else if (bootProgress < 60) increment = Math.random() * 0.4 + 0.1;
+            else if (bootProgress < 90) increment = Math.random() * 0.15;
+            else increment = 0.02;
+
+            // Speed multiplier for mobile
+            if (isMobile) increment *= 2.5;
+
+            bootProgress += increment;
+            const displayProgress = Math.min(bootProgress, 100);
+            
+            // Update the counter text (padded 000)
+            counterDisplay.innerText = Math.floor(displayProgress).toString().padStart(3, '0');
+
+            const offset = 40 - (displayProgress * 0.4); 
+            vmLeft.style.transform = `translateX(-${offset}px)`;
+            vmRight.style.transform = `translateX(${offset}px)`;
+
+            if (bootProgress >= 100) {
+                counterDisplay.innerText = "100";
+                // Trigger Dissolve immediately on snap
+                counterDisplay.classList.add('dissolve');
+                
+                vmLeft.style.transform = `translateX(0px)`;
+                vmRight.style.transform = `translateX(0px)`;
+                vennWrapper.classList.add('snapped');
+                setTimeout(revealLanding, isMobile ? 1000 : 2000); 
+            } else { requestAnimationFrame(loop); }
+        };
+        requestAnimationFrame(loop);
+    };
+
+    function revealLanding() {
+        loader.classList.add('done');
+        document.body.classList.add('booted');
+        setTimeout(() => {
+            isSystemReady = true;
+            requestAnimationFrame(animate);
+        }, 1500);
+        updateCapacity();
+    }
+
+    // =================================================================
+    //  STEP 1: YOUR DATABASE
+    // =================================================================
+    let artDatabase = [];
+
+    async function loadDatabase() {
+        try {
+            const response = await fetch('data.json');
+            artDatabase = await response.json();
+            renderFeed(); 
+        } catch (error) {
+            console.error('Error loading archive:', error);
+        }
+    }
+
+    loadDatabase();
+
+    // =================================================================
+    //  PHYSICS-BASED SCROLL & PARALLAX ENGINE
+    // =================================================================
+    let scrollPos = 0;
+    let velocity = 0;
+    const maxScroll = 7000; 
+    const friction = 0.96;  
+    let isLocked = true;
+    let isSystemReady = false; 
+    
+    let targetMouseX = 0, targetMouseY = 0;
+    let currentMouseX = 0, currentMouseY = 0;
+    
+    const landing = document.getElementById('landing-zone');
+    const interface = document.getElementById('interface');
+    const wires = [document.querySelector('.wire-1'), document.querySelector('.wire-2'), document.querySelector('.wire-3'), document.querySelector('.wire-4')];
+    const fluids = document.querySelectorAll('.fluid-shape');
+    const mainText = document.querySelector('.hero-main-text');
+    const subText = document.querySelector('.hero-sub');
+    const indicator = document.querySelector('.scroll-indicator');
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isLocked) return;
+        targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    window.addEventListener('wheel', (e) => {
+        if (!isSystemReady) return;
+        if (isLocked) velocity += e.deltaY * 0.15;
+    }, { passive: true });
+
+    let touchStartY = 0;
+    window.addEventListener('touchstart', e => touchStartY = e.touches[0].clientY, { passive: true });
+    window.addEventListener('touchmove', e => {
+        if (!isSystemReady) return;
+        const touchY = e.touches[0].clientY;
+        const delta = (touchStartY - touchY);
+        if (isLocked) velocity += delta * 0.5;
+        touchStartY = touchY;
+    }, { passive: true });
+
+    function animate() {
+        if (!isSystemReady) return; 
+
+        velocity *= friction;
+
+        if (isLocked) {
+            scrollPos += velocity;
+            if (scrollPos < 0) { scrollPos = 0; velocity = 0; }
+            if (scrollPos > maxScroll) { scrollPos = maxScroll; }
+
+            const ratio = scrollPos / maxScroll; 
+            currentMouseX += (targetMouseX - currentMouseX) * 0.05;
+            currentMouseY += (targetMouseY - currentMouseY) * 0.05;
+
+            const pText = 40, pFluid = 20, pWire = 10; 
+
+            wires[0].style.transform = `translate3d(${currentMouseX * pWire}px, calc(${-50 * ratio}vh + ${currentMouseY * pWire}px), 0) rotate(${15 + (ratio * 10)}deg)`;
+            wires[1].style.transform = `translate3d(${currentMouseX * pWire}px, calc(${-30 * ratio}vh + ${currentMouseY * pWire}px), 0) rotate(${12 - (ratio * 5)}deg)`;
+            wires[2].style.transform = `translate3d(${currentMouseX * pWire}px, calc(${50 * ratio}vh + ${currentMouseY * pWire}px), 0) rotate(${-5 + (ratio * 10)}deg)`;
+            wires[3].style.transform = `translate3d(calc(${50 * ratio}vw + ${currentMouseX * pWire}px), ${currentMouseY * pWire}px, 0) rotate(${25 + (ratio * 45)}deg)`;
+
+            const scale = 1 + (ratio * 4);
+            const blur = 40 + (ratio * 50);
+            const opacity = 0.8 - (ratio * 0.8);
+            fluids.forEach((f, i) => {
+                const dir = i % 2 === 0 ? 1 : -1;
+                f.style.transform = `translate3d(${currentMouseX * pFluid * dir}px, ${currentMouseY * pFluid}px, 0) scale(${scale})`; 
+                f.style.opacity = opacity;
+                f.style.filter = `blur(${blur}px)`;
+            });
+
+            const spacing = -8 + (ratio * 60);
+            mainText.style.letterSpacing = `${spacing}px`;
+            mainText.style.opacity = 1 - (ratio * 1.5);
+            document.querySelector('.hero-title-group').style.transform = `translate3d(${currentMouseX * pText}px, ${currentMouseY * pText}px, 0)`;
+            subText.style.opacity = 1 - (ratio * 2);
+            indicator.style.opacity = 1 - (ratio * 3);
+
+            if (ratio >= 0.99) unlockSystem();
+        } 
+
+        requestAnimationFrame(animate);
+    }
+
+    function unlockSystem() {
+        isLocked = false;
+        landing.classList.add('dismissed');
+        interface.classList.add('active');
+        document.body.classList.add('system-active');
+        velocity = 0;
+    }
+
+    // =================================================================
+    //  RENDER FEED WITH OPTIMIZED LOADING
+    // =================================================================
+    function renderFeed() {
+        const container = document.getElementById('art-injection-point');
+        if(container.innerHTML !== '') return;
+        
+        artDatabase.forEach((item, index) => {
+            const indexStr = (index + 1).toString().padStart(2, '0');
+            
+            let hashHTML = '<div class="visual-hash">';
+            for(let i=0; i<4; i++) {
+                hashHTML += `<div class="hash-bit" style="opacity: ${Math.random() > 0.5 ? 1 : 0.2}"></div>`;
+            }
+            hashHTML += '</div>';
+            
+            // Create DOM elements manually for better event control
+            const entry = document.createElement('div');
+            entry.className = 'entry';
+            entry.dataset.type = 'art';
+            entry.style.animationDelay = `${index * 0.2}s`;
+
+            entry.innerHTML = `
+                <div class="viz-wrapper">
+                    <div class="file-header">
+                        <span>[ IDX_${indexStr} ]</span>
+                        ${hashHTML}
+                    </div>
+                    <div class="img-box" onclick="openLightbox('${item.img}')">
+                        <!-- Image injected via JS below -->
+                        <div class="scan-overlay"></div>
+                    </div>
+                    <div class="meta-data-grid">
+                        <div class="meta-group">
+                            <span class="meta-label">FILE_NAME</span>
+                            <span class="meta-value">${item.id}</span>
+                        </div>
+                        <div class="meta-group">
+                            <span class="meta-label">DATE_LOG</span>
+                            <span class="meta-value">${item.date}</span>
+                        </div>
+                        <div class="meta-group">
+                            <span class="meta-label">DIMENSIONS</span>
+                            <span class="meta-value">${item.res}</span>
+                        </div>
+                        <div class="meta-group">
+                            <span class="meta-label">STATUS</span>
+                            <span class="meta-value">ARCHIVED</span>
+                        </div>
+                    </div>
+                    <div class="btn-bar">
+                        <a href="https://www.patreon.com/cw/sylicate" target="_blank" class="action-btn">DOWNLOAD HI-RES</a>
+                        <a href="#" class="action-btn secondary">ORDER PRINT</a>
+                    </div>
+                </div>
+            `;
+            
+            // OPTIMIZED IMAGE LOADING LOGIC
+            const imgBox = entry.querySelector('.img-box');
+            const img = document.createElement('img');
+            img.alt = item.title;
+            img.loading = "lazy"; // Native Lazy Loading
+            
+            // Fade in when data arrives
+            img.onload = function() {
+                this.classList.add('loaded');
+            };
+            
+            img.src = item.img;
+            imgBox.insertBefore(img, imgBox.firstChild); // Insert before overlay
+
+            container.appendChild(entry);
+        });
+    }
+
+    function navigate(page, el) {
+        if (el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
+        const feed = document.getElementById('feed-content');
+        const profile = document.getElementById('profile-content');
+        const modeDisplay = document.getElementById('logo-dial');
+
+        if (page === 'archive') { 
+            feed.classList.remove('hidden'); 
+            profile.classList.add('hidden'); 
+            modeDisplay.setAttribute('data-state', 'archive');
+        } 
+        else if (page === 'profile') { 
+            profile.classList.remove('hidden'); 
+            feed.classList.add('hidden');
+            modeDisplay.setAttribute('data-state', 'profile');
+
+            const profileItems = profile.querySelectorAll('.profile-section-anim');
+            profileItems.forEach((item, index) => {
+                item.style.animation = 'none';
+                item.offsetHeight; // trigger reflow
+                item.style.animation = `slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards ${index * 0.1}s`;
+            });
+        }
+        document.getElementById('content-area').scrollTop = 0;
+    }
+
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    const lbHint = document.getElementById('lb-hint');
+    let isZoomed = false;
+    lbImg.addEventListener('click', (e) => {
+        e.stopPropagation(); isZoomed = !isZoomed;
+        if (isZoomed) { lbImg.style.transform = "scale(2.5)"; lbImg.style.cursor = "grab"; lbHint.innerText = "PAN TO INSPECT"; } 
+        else { lbImg.style.transform = "scale(1) translate(0,0)"; lbImg.style.cursor = "zoom-in"; lbHint.innerText = "CLICK TO ZOOM"; }
+    });
+    lightbox.addEventListener('mousemove', (e) => {
+        if (!isZoomed) return;
+        const xPct = (e.clientX / window.innerWidth - 0.5) * 2;
+        const yPct = (e.clientY / window.innerHeight - 0.5) * 2;
+        lbImg.style.transform = `scale(2.5) translate(${xPct * -200}px, ${yPct * -200}px)`;
+    });
+    function openLightbox(src) { lightbox.classList.add('active'); lbImg.src = src; isZoomed = false; lbImg.style.transform = "scale(1)"; lbImg.style.cursor = "zoom-in"; lbHint.innerText = "CLICK TO ZOOM"; }
+    function closeLightbox() { lightbox.classList.remove('active'); }
+    document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeLightbox(); });
+
+    function updateCapacity() {
+        const date = new Date();
+        const percent = Math.floor((date.getDate() / new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()) * 100);
+        document.getElementById('capacity-bar').style.width = percent + "%";
+        document.getElementById('capacity-text').innerText = percent + "%";
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('inverted');
+        const isDark = document.body.classList.contains('inverted');
+        document.getElementById('theme-icon-btn').innerHTML = isDark 
+            ? `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
+            : `<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+    }
+</script>
+</body>
+</html>
