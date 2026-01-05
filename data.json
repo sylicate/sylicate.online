@@ -1,5 +1,12 @@
 [
   {
+    "id": "49 tetrahedra.png",
+    "date": "30.12.2025",
+    "title": "tetrahedra",
+    "res": "3840x5280",
+    "img": "images/49 tetrahedra git.webp"
+  },
+  {
     "id": "48 aarv.png",
     "date": "29.12.2025",
     "title": "aarv",
@@ -265,4 +272,5 @@
     "res": "3840x5280",
     "img": "images/3rd3rd.webp"
   }
+
 ]
