@@ -1,5 +1,12 @@
 [
   {
+    "id": "50 spireshade.png",
+    "date": "31.12.2025",
+    "title": "spireshade",
+    "res": "3840x5280",
+    "img": "images/50 spireshade git.webp"
+  },
+  {
     "id": "49 tetrahedra.png",
     "date": "30.12.2025",
     "title": "tetrahedra",
@@ -274,3 +281,4 @@
   }
 
 ]
+
