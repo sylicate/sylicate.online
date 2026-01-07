@@ -1,5 +1,12 @@
 [
   {
+    "id": "51 vitrexis.png",
+    "date": "01.01.2026",
+    "title": "vitrexis",
+    "res": "3840x5280",
+    "img": "images/51 vitrexis_708 git.webp"
+  },
+  {
     "id": "50 spireshade.png",
     "date": "31.12.2025",
     "title": "spireshade",
@@ -281,4 +288,5 @@
   }
 
 ]
+
 
