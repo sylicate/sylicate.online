@@ -1,5 +1,12 @@
 [
   {
+    "id": "52 vitraph.png",
+    "date": "02.01.2026",
+    "title": "vitraph",
+    "res": "3840x5280",
+    "img": "images/52 vitraph.webp"
+  },
+  {
     "id": "51 vitrexis.png",
     "date": "01.01.2026",
     "title": "vitrexis",
@@ -288,5 +295,6 @@
   }
 
 ]
+
 
 
