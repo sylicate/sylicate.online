@@ -1,5 +1,12 @@
 [
   {
+    "id": "57 gamma.png",
+    "date": "07.01.2026",
+    "title": "gamma",
+    "res": "3840x5280",
+    "img": "images/57 gamma git.webp"
+  },
+  {
     "id": "56 passing.png",
     "date": "06.01.2026",
     "title": "passing",
@@ -323,6 +330,7 @@
   }
 
 ]
+
 
 
 
