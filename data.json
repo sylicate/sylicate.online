@@ -1,5 +1,26 @@
 [
   {
+    "id": "60 coesite.png",
+    "date": "10.01.2026",
+    "title": "coesite",
+    "res": "3840x5280",
+    "img": "images/60 coesite git.webp"
+  },
+  {
+    "id": "59 axinite.png",
+    "date": "09.01.2026",
+    "title": "axinite",
+    "res": "5280x3840",
+    "img": "images/59 axinite git.webp"
+  },
+  {
+    "id": "58 flair.png",
+    "date": "08.01.2026",
+    "title": "flair",
+    "res": "3840x5280",
+    "img": "images/58 flair git.webp"
+  },
+  {
     "id": "57 gamma.png",
     "date": "07.01.2026",
     "title": "gamma",
@@ -330,6 +351,7 @@
   }
 
 ]
+
 
 
 
