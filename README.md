@@ -5,7 +5,7 @@
 
 ---
 
-## :: SYSTEM_OVERVIEW
+## :: OVERVIEW
 
 This project is a single-page portfolio website designed with a **Brutalist / Industrial** aesthetic. It utilizes basic Vanilla JavaScript, HTML, and CSS to create a visual experience with zero framework overhead.
 
@@ -39,7 +39,7 @@ The archival log entries are populated automatically by data.json.
 ## :: MOBILE_OPTIMIZATION
 Detecting mobile devices (width < 768px) and automatically:
 Transforming the sidebar into a fixed top header.
-Increasing touch area for buttons.
+Increasing touch range for the buttons.
 Accelerating the Venn Diagram animation (2.5x speed) for a faster mobile animation.
 Simplifying the layout grid to a single column.
 
