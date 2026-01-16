@@ -31,15 +31,16 @@ https://sylicate.online
 *   **Data:** JSON-based content injection (`fetch` API).
 *   **Performance:** Native Lazy Loading, GPU-accelerated transforms (`will-change`), and requestAnimationFrame loops.
 
----
 
-:: CONFIGURATION
+## :: CONFIGURATION
 1. The Art Database (data.json)
 The gallery feed is populated automatically by data.json.
 
-:: MOBILE_OPTIMIZATION
+## :: MOBILE_OPTIMIZATION
 The system detects mobile devices (width < 768px) and automatically:
 Transforms the sidebar into a fixed top/bottom header.
 Increases touch targets for buttons.
 Accelerates the boot/loader animation (2.5x speed) for faster mobile UX.
 Simplifies the layout grid to a single column.
+
+---
