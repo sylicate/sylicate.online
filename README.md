@@ -24,15 +24,15 @@ https://sylicate.online
 *   **Noise Texture:** An SVG noise filter overlay for the grain texture.
 *   **Custom Lightbox:** Pan and zoom image inspector.
 
-## :: TECH_STACK
+## :: STACK
 
 *   **Core:** HTML, CSS (CSS Variables for theming).
-*   **Logic:** Vanilla JavaScript.
-*   **Source:** JSON-based content injection (`fetch` API).
-*   **Performance:** Native Lazy Loading, GPU-accelerated transforms (`will-change`), and requestAnimationFrame loops.
+*   **Logic:** JavaScript.
+*   **Source:** JSON image and format sourcing using fetch.
+*   **Optimization and Performance:** Intentional late load, utilizing gpu acceleration for transforms and loops.
 
 
-## :: CONFIGURATION
+## :: CONFIG
 1. Image Database (data.json)
 The archival log entries are populated automatically by data.json.
 
