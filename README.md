@@ -11,7 +11,7 @@ This project is a single-page portfolio website designed with a **Brutalist / In
 
 The interface impersonates a futuristic terminal or archival system, utilizing a "Venn Diagram" loader, a physics-based scroll-to-unlock mechanism, and an interactable feed.
 
-### [ LIVE DEMO ]
+### [ LIVE ]
 https://sylicate.online
 
 ## :: VISUAL_FEATURES
