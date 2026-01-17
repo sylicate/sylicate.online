@@ -1,5 +1,12 @@
 [
   {
+    "id": "61 hedral.png",
+    "date": "11.01.2026",
+    "title": "hedral",
+    "res": "3840x5280",
+    "img": "images/61 hedral.webp"
+  },
+  {
     "id": "60 coesite.png",
     "date": "10.01.2026",
     "title": "coesite",
@@ -351,6 +358,7 @@
   }
 
 ]
+
 
 
 
