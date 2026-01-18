@@ -1,5 +1,12 @@
 [
   {
+    "id": "62 rhyolite.png",
+    "date": "12.01.2026",
+    "title": "rhyolite",
+    "res": "3840x5280",
+    "img": "images/62 rhyolite git.webp"
+  },
+  {
     "id": "61 hedral.png",
     "date": "11.01.2026",
     "title": "hedral",
@@ -358,6 +365,7 @@
   }
 
 ]
+
 
 
 
