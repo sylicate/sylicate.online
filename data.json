@@ -1,5 +1,12 @@
 [
   {
+    "id": "63 feldspar.png",
+    "date": "13.01.2026",
+    "title": "feldspar",
+    "res": "3840x5280",
+    "img": "images/63 feldspar git.webp"
+  },
+  {
     "id": "62 rhyolite.png",
     "date": "12.01.2026",
     "title": "rhyolite",
@@ -365,6 +372,7 @@
   }
 
 ]
+
 
 
 
