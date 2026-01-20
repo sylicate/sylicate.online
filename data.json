@@ -1,5 +1,12 @@
 [
   {
+    "id": "64 diopside.png",
+    "date": "14.01.2026",
+    "title": "diopside",
+    "res": "3840x5280",
+    "img": "images/64 diopside git.webp"
+  },
+  {
     "id": "63 feldspar.png",
     "date": "13.01.2026",
     "title": "feldspar",
@@ -372,6 +379,7 @@
   }
 
 ]
+
 
 
 
