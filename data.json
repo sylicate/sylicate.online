@@ -1,5 +1,12 @@
 [
    {
+    "id": "71 plasme.png",
+    "date": "21.01.2026",
+    "title": "plasme",
+    "res": "3840x5280",
+    "img": "images/71 plasme.webp"
+  },
+   {
     "id": "70 polyphase.png",
     "date": "20.01.2026",
     "title": "polyphase",
@@ -421,6 +428,7 @@
   }
 
 ]
+
 
 
 
