@@ -1,5 +1,12 @@
 [
    {
+    "id": "74 medi.png",
+    "date": "24.01.2026",
+    "title": "medi",
+    "res": "3840x5280",
+    "img": "images/73 medi git.webp"
+  },
+   {
     "id": "73 diffuse.png",
     "date": "23.01.2026",
     "title": "diffuse",
@@ -442,6 +449,7 @@
   }
 
 ]
+
 
 
 
