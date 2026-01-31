@@ -1,10 +1,17 @@
 [
    {
+    "id": "75 pow-r3.png",
+    "date": "25.01.2026",
+    "title": "pow-r3",
+    "res": "3840x5280",
+    "img": "images/75 pow-r3 git.webp"
+  },
+   {
     "id": "74 medi.png",
     "date": "24.01.2026",
     "title": "medi",
     "res": "3840x5280",
-    "img": "images/73 medi git.webp"
+    "img": "images/74 medi git.webp"
   },
    {
     "id": "73 diffuse.png",
@@ -449,6 +456,7 @@
   }
 
 ]
+
 
 
 
