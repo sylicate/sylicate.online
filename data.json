@@ -1,5 +1,12 @@
 [
    {
+    "id": "76 slate.png",
+    "date": "26.01.2026",
+    "title": "slate",
+    "res": "5280x3840",
+    "img": "images/76 slate git.webp"
+  },
+   {
     "id": "75 pow-r3.png",
     "date": "25.01.2026",
     "title": "pow-r3",
@@ -456,6 +463,7 @@
   }
 
 ]
+
 
 
 
