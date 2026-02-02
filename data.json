@@ -1,5 +1,12 @@
 [
    {
+    "id": "77 force_majeure.png",
+    "date": "27.01.2026",
+    "title": "force_majeure",
+    "res": "3840x5280",
+    "img": "images/77 force_majeure git.webp"
+  },
+   {
     "id": "76 slate.png",
     "date": "26.01.2026",
     "title": "slate",
@@ -463,6 +470,7 @@
   }
 
 ]
+
 
 
 
