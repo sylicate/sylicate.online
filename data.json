@@ -1,6 +1,13 @@
 [
    {
-    "id": "78 replaque git.png",
+    "id": "79 c0re.png",
+    "date": "29.01.2026",
+    "title": "c0re",
+    "res": "5280x3840",
+    "img": "images/78 c0re git.webp"
+  },
+   {
+    "id": "78 replaque.png",
     "date": "28.01.2026",
     "title": "replaque",
     "res": "5280x3840",
@@ -477,6 +484,7 @@
   }
 
 ]
+
 
 
 
