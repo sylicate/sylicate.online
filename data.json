@@ -1,10 +1,17 @@
 [
    {
+    "id": "80 adjust.png",
+    "date": "30.01.2026",
+    "title": "adjust",
+    "res": "3840x5280",
+    "img": "images/80 adjust git.webp"
+  },
+   {
     "id": "79 c0re.png",
     "date": "29.01.2026",
     "title": "c0re",
     "res": "5280x3840",
-    "img": "images/78 c0re git.webp"
+    "img": "images/79 c0re git.webp"
   },
    {
     "id": "78 replaque.png",
@@ -484,6 +491,7 @@
   }
 
 ]
+
 
 
 
