@@ -1,5 +1,12 @@
 [
    {
+    "id": "83 semblence.png",
+    "date": "02.02.2026",
+    "title": "semblence",
+    "res": "3840x5280",
+    "img": "images/83 semblence.webp"
+  },
+   {
     "id": "82 vapallia.png",
     "date": "01.02.2026",
     "title": "vapallia",
@@ -505,6 +512,7 @@
   }
 
 ]
+
 
 
 
