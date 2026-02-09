@@ -1,5 +1,12 @@
 [
    {
+    "id": "84 ritooria.png",
+    "date": "03.02.2026",
+    "title": "ritooria",
+    "res": "3840x5280",
+    "img": "images/84 ritooria git.webp"
+  },
+   {
     "id": "83 semblence.png",
     "date": "02.02.2026",
     "title": "semblence",
@@ -512,6 +519,7 @@
   }
 
 ]
+
 
 
 
