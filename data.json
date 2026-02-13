@@ -1,5 +1,12 @@
 [
    {
+    "id": "86 acolyte.png",
+    "date": "06.02.2026",
+    "title": "acolyte",
+    "res": "5280x3840",
+    "img": "images/86 acolyte git.webp"
+  },
+   {
     "id": "85 monomyth.png",
     "date": "04.02.2026",
     "title": "monomyth",
@@ -526,6 +533,7 @@
   }
 
 ]
+
 
 
 
